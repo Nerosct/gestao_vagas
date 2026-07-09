@@ -1,0 +1,36 @@
+name: Gestao de Vagas Application
+
+on:
+    push:
+        branches: [main]
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+            - name: Set up JDK 21
+              uses: actions/setup-java@v4
+              with:
+                  distribution: "temurin"
+                  java-version: "21"
+                  cache: "maven"
+            - name: Build Project
+              run: mvn clean package
+            - name: Login Docker Hub
+              run: docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
+            - name: Build docker Image
+              run: docker build -t nerosct/gestao_vagas .
+            - name: Push docker Image
+              run: docker push nerosct/gestao_vagas:latest
+    deploy:
+        needs: build
+        runs-on: self-hosted
+        steps:
+            - name: Pull image docker hub
+              run: docker pull nerosct/gestao_vagas:latest
+            - name: Remove old container
+              run: docker rm -f gestao-vagas
+            - name: Rund docker container gestao-vagas
+              run: docker run -d -p 8080:8080 -e DATABASE_URL=${{secrets.DATABASE_URL}} -e DATABASE_PASSWORD=${{secrets.DATABASE_PASSWORD}} -e DATABASE_USERNAME=${{secrets.DATABASE_USERNAME}} --name gestao-vagas nerosct/gestao_vagas:latest
