@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.UUID;
 
+import br.com.gestaodevagas.exceptions.UserNotFoundException;
 import br.com.gestaodevagas.modules.candidate.dto.ProfileCandidateResponseDTO;
 import br.com.gestaodevagas.modules.candidate.repositories.CandidateRepository;
 
@@ -15,7 +16,7 @@ public class ProfileCandidateUseCase {
 
     public ProfileCandidateResponseDTO execute(UUID idCandidate) {
         var candidate = this.candidateRepository.findById(idCandidate).orElseThrow(() -> {
-            throw new RuntimeException("Candidate not found");
+            throw new UserNotFoundException();
         });
         var candidateDTO = ProfileCandidateResponseDTO.builder()
                 .id(candidate.getId())
