@@ -41,16 +41,21 @@ public class AuthCandidateUseCase {
             throw new AuthenticationException("Usuário/Senha Incorretos");
         }
 
+        var roles = Arrays.asList("CANDIDATE");
+
         Algorithm algorithm = Algorithm.HMAC256(secretKey);
         var expiresAt = Instant.now().plus(Duration.ofMinutes(10));
         var token = JWT.create().withIssuer("Javagas")
                 .withExpiresAt(expiresAt)
                 .withSubject(candidate.getId().toString())
-                .withClaim("roles", Arrays.asList("CANDIDATE"))
+                .withClaim("roles", roles)
                 .sign(algorithm);
 
-        var authCandidateResponse = AuthCandidateResponseDTO.builder().access_token(token)
-                .expires_in(expiresAt.toEpochMilli()).build();
+        var authCandidateResponse = AuthCandidateResponseDTO.builder()
+                .access_token(token)
+                .expires_in(expiresAt.toEpochMilli())
+                .roles(roles)
+                .build();
         return authCandidateResponse;
     }
 
