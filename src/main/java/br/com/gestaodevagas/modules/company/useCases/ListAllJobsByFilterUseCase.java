@@ -14,7 +14,11 @@ public class ListAllJobsByFilterUseCase {
     @Autowired
     private JobRepository jobRepository;
 
-    public List<JobEntity> execute(String jobDescriptionFilter){
-        return this.jobRepository.findByDescriptionContainingIgnoreCase(jobDescriptionFilter);
+    public List<JobEntity> execute(String jobDescriptionFilter) {
+        if (jobDescriptionFilter == null || jobDescriptionFilter.isBlank()) {
+            return List.of();
+        }
+
+        return jobRepository.findByDescriptionContainingIgnoreCase(jobDescriptionFilter);
     }
 }
