@@ -9,4 +9,7 @@ import br.com.gestaodevagas.modules.company.entities.JobEntity;
 public interface JobRepository extends JpaRepository<JobEntity, UUID> {
 
     List<JobEntity> findByDescriptionContainingIgnoreCase(String jobDescriptionFilter);
+
+    List<JobEntity> findByCompanyId(UUID companyId);
+
 }
