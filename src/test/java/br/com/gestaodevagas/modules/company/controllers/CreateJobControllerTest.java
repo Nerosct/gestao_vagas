@@ -1,12 +1,9 @@
 package br.com.gestaodevagas.modules.company.controllers;
 
-import static org.junit.Assert.assertTrue;
-
 import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -19,7 +16,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import br.com.gestaodevagas.exceptions.CompanyNotFoundException;
 import br.com.gestaodevagas.modules.company.dto.CreateJobDTO;
 import br.com.gestaodevagas.modules.company.entities.CompanyEntity;
 import br.com.gestaodevagas.modules.company.repositories.CompanyRepository;
@@ -53,7 +49,6 @@ public class CreateJobControllerTest {
                                 .description("Empresa de laticínios")
                                 .email("empresalati@gmail.com")
                                 .name("Lati Lati")
-                                .id(UUID.randomUUID())
                                 .password("123456789")
                                 .username("lati_lati")
                                 .build();
@@ -69,11 +64,14 @@ public class CreateJobControllerTest {
                 var result = mvc.perform(MockMvcRequestBuilders.post("/company/job/")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(TestUtils.convertObjectToJson(createJobDTO))
-                                .header("Authorization", TestUtils.generateToken(UUID.randomUUID(), "JAVAGAS_@123#")))
-                                .andExpect(MockMvcResultMatchers.status().isCreated())
+                                .header("Authorization", TestUtils.generateToken(company.getId(), "Senha")))
+                                .andExpect(MockMvcResultMatchers.status().isOk())
                                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").exists());
+
+                System.out.println(result);
         }
 
+        @Test
         public void should_not_create_job_if_company_not_exists() throws Exception {
                 CreateJobDTO createJobDTO = CreateJobDTO.builder()
                                 .description("Analista de Sistemas")
@@ -81,12 +79,11 @@ public class CreateJobControllerTest {
                                 .level("Pleno")
                                 .build();
 
-                
-                        mvc.perform(MockMvcRequestBuilders.post("/company/job/")
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .content(TestUtils.convertObjectToJson(createJobDTO))
-                                        .header("Authorization", TestUtils.generateToken(UUID.randomUUID(), "JAVAGAS_@123#")))
-                        .andExpect(MockMvcResultMatchers.status().isBadRequest());
+                mvc.perform(MockMvcRequestBuilders.post("/company/job/")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(TestUtils.convertObjectToJson(createJobDTO))
+                                .header("Authorization", TestUtils.generateToken(UUID.randomUUID(), "Senha")))
+                                .andExpect(MockMvcResultMatchers.status().isBadRequest());
         }
 
 }
